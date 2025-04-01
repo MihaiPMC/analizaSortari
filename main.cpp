@@ -67,37 +67,77 @@ void RadixSortBase2pow16(vector<long long> &v, long long n, long long maxim)
 }
 
 void MergeSort(vector<long long> &v, long long n) {
-    vector<long long> aux(n);
+    vector<long long> output(n);
 
     for (long long width = 1; width < n; width *= 2) {
         for (long long i = 0; i < n; i += 2 * width) {
             long long left = i;
             long long mid = min(i + width, n);
             long long right = min(i + 2 * width, n);
-            
+
             long long i1 = left, i2 = mid, j = left;
-            
+
             while (i1 < mid && i2 < right) {
                 if (v[i1] <= v[i2]) {
-                    aux[j++] = v[i1++];
+                    output[j++] = v[i1++];
                 } else {
-                    aux[j++] = v[i2++];
+                    output[j++] = v[i2++];
                 }
             }
-            
+
             while (i1 < mid) {
-                aux[j++] = v[i1++];
+                output[j++] = v[i1++];
             }
-            
+
             while (i2 < right) {
-                aux[j++] = v[i2++];
+                output[j++] = v[i2++];
             }
-            
+
             for (long long k = left; k < right; k++) {
-                v[k] = aux[k];
+                v[k] = output[k];
             }
         }
     }
+}
+
+void ShellSort(vector<long long> &v, long long n)
+{
+    for (long long gap = n / 2; gap > 0; gap /= 2)
+    {
+        for (long long i = gap; i < n; i++)
+        {
+            long long temp = v[i];
+            
+            long long j;
+            for (j = i; j >= gap && v[j - gap] > temp; j -= gap)
+            {
+                v[j] = v[j - gap];
+            }
+            
+            v[j] = temp;
+        }
+    }
+}
+
+void CountSort(vector<long long> &v, long long n, long long maxim)
+{
+    vector<long long> count(maxim + 1, 0);
+    vector<long long> output(n);
+
+    for (long long i = 0; i < n; i++)
+        count[v[i]]++;
+
+    for (long long i = 1; i <= maxim; i++)
+        count[i] += count[i - 1];
+
+    for (long long i = n - 1; i >= 0; i--)
+    {
+        output[count[v[i]] - 1] = v[i];
+        count[v[i]]--;
+    }
+
+    for (long long i = 0; i < n; i++)
+        v[i] = output[i];
 }
 
 int main()
@@ -146,6 +186,21 @@ int main()
         elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
         cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
+        v = aux;
+        //shell sort
+        begin = clock();
+        ShellSort(v, n);
+        end = clock();
+        elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+
+        v = aux;
+        //count sort
+        begin = clock();
+        CountSort(v, n, maxim);
+        end = clock();
+        elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
     }
 
 }
