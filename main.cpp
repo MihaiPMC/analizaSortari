@@ -1,5 +1,9 @@
-#include <bits/stdc++.h>
+#include <vector>
 #include <ctime>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -100,6 +104,101 @@ void MergeSort(vector<long long> &v, long long n) {
     }
 }
 
+void QuickSortMiddle(vector<long long> &v, int left, int right)
+{
+    if(left < right)
+    {
+        int m = (left + right) / 2;
+        int aux = v[left];
+        v[left] = v[m];
+        v[m] = aux;
+        int i = left , j = right, d = 0;
+        while(i < j)
+        {
+            if(v[i] > v[j])
+            {
+                aux = v[i];
+                v[i] = v[j];
+                v[j] = aux;
+                d = 1 - d;
+            }
+            i += d;
+            j -= 1 - d;
+        }
+        QuickSortMiddle(v, left , i - 1);
+        QuickSortMiddle(v, i + 1 , right);
+    }
+}
+
+void QuickSortMedian3(vector<long long> &v, int left, int right)
+{
+    if(left < right)
+    {
+        int m = (left + right) / 2;
+        
+        if(v[left] > v[m]) swap(v[left], v[m]);
+        if(v[m] > v[right]) swap(v[m], v[right]);
+        if(v[left] > v[m]) swap(v[left], v[m]);
+        
+        swap(v[left], v[m]);
+        
+        int i = left , j = right, d = 0;
+        while(i < j)
+        {
+            if(v[i] > v[j])
+            {
+                swap(v[i], v[j]);
+                d = 1 - d;
+            }
+            i += d;
+            j -= 1 - d;
+        }
+        QuickSortMedian3(v, left , i - 1);
+        QuickSortMedian3(v, i + 1 , right);
+    }
+}
+
+void QuickSortMedian5(vector<long long> &v, int left, int right)
+{
+    if(left < right)
+    {
+        if (right - left >= 4) {
+            int i1 = left;
+            int i2 = left + (right - left) / 4;
+            int i3 = (left + right) / 2;
+            int i4 = right - (right - left) / 4;
+            int i5 = right;
+            
+            vector<pair<long long, int>> samples = {
+                {v[i1], i1}, {v[i2], i2}, {v[i3], i3}, {v[i4], i4}, {v[i5], i5}
+            };
+            sort(samples.begin(), samples.end());
+            
+            swap(v[left], v[samples[2].second]);
+        } else {
+            int m = (left + right) / 2;
+            if(v[left] > v[m]) swap(v[left], v[m]);
+            if(v[m] > v[right]) swap(v[m], v[right]);
+            if(v[left] > v[m]) swap(v[left], v[m]);
+            swap(v[left], v[m]);
+        }
+        
+        int i = left , j = right, d = 0;
+        while(i < j)
+        {
+            if(v[i] > v[j])
+            {
+                swap(v[i], v[j]);
+                d = 1 - d;
+            }
+            i += d;
+            j -= 1 - d;
+        }
+        QuickSortMedian5(v, left , i - 1);
+        QuickSortMedian5(v, i + 1 , right);
+    }
+}
+
 int main()
 {
     int testCases;
@@ -111,6 +210,7 @@ int main()
         fin >> n >> maxim;
 
         vector<long long> aux(n);
+
         srand(time(0) + t);
 
         for(long long i = 0; i < n; i++) {
@@ -137,7 +237,6 @@ int main()
         elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
         cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
-
         v = aux;
         // Merge Sort
         begin = clock();
@@ -146,7 +245,31 @@ int main()
         elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
         cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
+        // QuickSort with middle pivot (original)
+        v = aux;
+        begin = clock();
+        QuickSortMiddle(v, 0, n-1);
+        end = clock();
+        elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+        
+        // QuickSort with median of 3
+        v = aux;
+        begin = clock();
+        QuickSortMedian3(v, 0, n-1);
+        end = clock();
+        elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+        
+        // QuickSort with median of 5
+        v = aux;
+        begin = clock();
+        QuickSortMedian5(v, 0, n-1);
+        end = clock();
+        elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+        
+
     }
-
+    return 0;
 }
-
