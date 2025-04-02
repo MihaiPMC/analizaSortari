@@ -119,6 +119,33 @@ void ShellSort(vector<long long> &v, long long n)
     }
 }
 
+void ShellSortCiura(vector<long long> &v, long long n)
+{
+    vector<long long> gaps = {1, 4, 10, 23, 57, 132, 301, 701, 1750};
+    
+    while (gaps.back() < n/2.25) {
+        gaps.push_back(gaps.back() * 2.25);
+    }
+    
+    for (int k = gaps.size() - 1; k >= 0; k--)
+    {
+        long long gap = gaps[k];
+        
+        for (long long i = gap; i < n; i++)
+        {
+            long long temp = v[i];
+            
+            long long j;
+            for (j = i; j >= gap && v[j - gap] > temp; j -= gap)
+            {
+                v[j] = v[j - gap];
+            }
+            
+            v[j] = temp;
+        }
+    }
+}
+
 void CountSort(vector<long long> &v, long long n, long long maxim)
 {
     vector<long long> count(maxim + 1, 0);
@@ -141,20 +168,23 @@ void CountSort(vector<long long> &v, long long n, long long maxim)
 }
 
 void heapify(vector<long long> &v, long long n, long long i) {
-    long long largest = i;
-    long long left = 2 * i + 1;
-    long long right = 2 * i + 2;
-
-    if (left < n && v[left] > v[largest])
-        largest = left;
-
-    if (right < n && v[right] > v[largest])
-        largest = right;
-
-    if (largest != i) {
-        swap(v[i], v[largest]);
-        heapify(v, n, largest);
+    long long temp = v[i];
+    long long child;
+    
+    while ((child = 2 * i + 1) < n) {
+        if (child + 1 < n && v[child] < v[child + 1]) {
+            child++;
+        }
+        
+        if (temp < v[child]) {
+            v[i] = v[child];
+            i = child;
+        } else {
+            break;
+        }
     }
+    
+    v[i] = temp;
 }
 
 void HeapSort(vector<long long> &v, long long n)
@@ -164,6 +194,7 @@ void HeapSort(vector<long long> &v, long long n)
 
     for (long long i = n - 1; i > 0; i--) {
         swap(v[0], v[i]);
+        
         heapify(v, i, 0);
     }
 }
@@ -317,6 +348,14 @@ int main()
         end = clock();
         elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
         cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+
+        v = aux;
+        // Shell Sort with Ciura sequence
+        begin = clock();
+        ShellSortCiura(v, n);
+        end = clock();
+        elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
         v = aux;
         //count sort
