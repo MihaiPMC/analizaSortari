@@ -187,40 +187,40 @@ void CountSort(vector<long long> &v, long long n, long long maxim) {
       cout << "Count Sort is not suitable for this case." << endl;
       return;
     }
-  
+
     unsigned long long operations = 0, comparisons = 0;
-  
+
     vector<long long> count(maxim + 1, 0); operations += maxim + 1;
     vector<long long> output(n); operations += n;
-  
+
     for (long long i = 0; i < n; i++) {
       comparisons++; // for condition
       count[v[i]]++; operations += 2;
     }
-  
+
     for (long long i = 1; i <= maxim; i++) {
       comparisons++; // for condition
       count[i] += count[i - 1]; operations += 2;
     }
-  
+
     for (long long i = n - 1; i >= 0; i--) {
       comparisons++; // for condition
       output[count[v[i]] - 1] = v[i]; operations += 3;
       count[v[i]]--; operations += 2;
     }
-  
+
     for (long long i = 0; i < n; i++) {
       comparisons++; // for condition
       v[i] = output[i]; operations += 2;
     }
-  
+
     std::cout << "Count Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void heapify(vector<long long> &v, long long n, long long i, unsigned long long &operations, unsigned long long &comparisons) {
     long long temp = v[i]; operations += 2;
     long long child;
-  
+
     while ((child = 2 * i + 1) < n) {
       comparisons++; // while condition check
       operations += 2;
@@ -228,7 +228,7 @@ void heapify(vector<long long> &v, long long n, long long i, unsigned long long 
         comparisons += 2; // child + 1 < n && v[child] < v[child + 1]
         child++; operations++;
       }
-  
+
       if (temp < v[child]) {
         comparisons++; // temp < v[child]
         v[i] = v[child]; i = child; operations += 3;
@@ -237,25 +237,25 @@ void heapify(vector<long long> &v, long long n, long long i, unsigned long long 
         break;
       }
     }
-  
+
     v[i] = temp; operations++;
 }
-  
+
 void HeapSort(vector<long long> &v, long long n) {
     unsigned long long operations = 0, comparisons = 0;
-  
+
     for (long long i = n / 2 - 1; i >= 0; i--) {
       comparisons++; // for condition
       heapify(v, n, i, operations, comparisons);
       operations++;
     }
-  
+
     for (long long i = n - 1; i > 0; i--) {
       comparisons++; // for condition
       swap(v[0], v[i]); operations += 3;
       heapify(v, i, 0, operations, comparisons);
     }
-  
+
     std::cout << "Heap Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
@@ -378,9 +378,9 @@ void QuickSortMedian5(vector<long long>& v, int low, int high, unsigned long lon
 }
 
 long long randomNumber(int No, long long min, long long max) {
-    random_device rd;  
-    mt19937 eng(rd()); 
-    uniform_int_distribution<> distr(0, max); 
+    random_device rd;
+    mt19937 eng(rd());
+    uniform_int_distribution<> distr(0, max);
 
     long long p10 = 1;
     for (int i = 0; i <= No; i++) {
@@ -460,8 +460,8 @@ void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
     clock_t begin, end;
     double elapsed_seconds;
     unsigned long long operations, comparisons;
-    
-    v = aux;  
+
+    v = aux;
     // Radix Sort Base 10
     begin = clock();
     RadixSortBase10(v, n, maxim);
@@ -527,7 +527,7 @@ void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     std::cout << "QuickSort (middle pivot) did " << operations << " operations and " << comparisons << " comparisons.\n";
     std::cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
-    
+
     // QuickSort with median of 3
     v = aux;
     operations = 0;
@@ -538,7 +538,7 @@ void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     std::cout << "QuickSort (median of 3) did " << operations << " operations and " << comparisons << " comparisons.\n";
     std::cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
-    
+
     // QuickSort with median of 5
     v = aux;
     operations = 0;
@@ -553,12 +553,12 @@ void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
 
 int main() {
     int t = 1;
-    long long n = 1e6;
+    long long n = 1e8;
     long long maxim = 2e14;
     vector<long long> aux;
     clock_t begin, end;
     double elapsed_seconds;
-    
+
     srand(time(nullptr) + 1);
 
     ////////////////////////////////// TEST CASE 1 /////////////////////////////////////////
@@ -566,7 +566,7 @@ int main() {
     t = 1;
 
     begin = clock();
-    aux = generateRandomNumbers(1e6, 1, maxim);
+    aux = generateRandomNumbers(1e8, 1, maxim);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
@@ -579,7 +579,7 @@ int main() {
     t = 2;
 
     begin = clock();
-    aux = generate1Number(1e6, 1, maxim);
+    aux = generate1Number(1e8, 1, maxim);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
@@ -592,7 +592,7 @@ int main() {
     t = 3;
 
     begin = clock();
-    aux = generateIncreasing(1e6, 1, maxim);
+    aux = generateIncreasing(1e8, 1, maxim);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
@@ -605,7 +605,7 @@ int main() {
     t = 4;
 
     begin = clock();
-    aux = generateAlmostIncreasing(1e6, 1, maxim, 85);
+    aux = generateAlmostIncreasing(1e8, 1, maxim, 85);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
@@ -619,7 +619,7 @@ int main() {
     t = 5;
 
     begin = clock();
-    aux = generateDecreasing(1e6, 1, maxim);
+    aux = generateDecreasing(1e8, 1, maxim);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
@@ -632,7 +632,7 @@ int main() {
     t = 6;
 
     begin = clock();
-    aux = generateAlmostDecreasing(1e6, 1, maxim, 85);
+    aux = generateAlmostDecreasing(1e8, 1, maxim, 85);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
@@ -647,7 +647,7 @@ int main() {
     maxim = 100;
 
     begin = clock();
-    aux = generateRandomNumbers(1e6, 1, maxim);
+    aux = generateRandomNumbers(1e8, 1, maxim);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
