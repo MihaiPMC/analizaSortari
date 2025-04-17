@@ -4,44 +4,47 @@
 using namespace std;
 
 void RadixSortBase10(vector<long long> &v, long long n, long long maxim) {
-    unsigned long long operations = 0;
+    unsigned long long operations = 0, comparisons = 0;
     vector<long long> output(n); operations += n;
   
     long long exp = 1; operations++;
   
     while (maxim / exp > 0) {
-      operations++; // while condition
+      comparisons++; // while condition
       vector<long long> count(10, 0); operations += 10;
   
       for (long long i = 0; i < n; i++) {
+        comparisons++; // for condition
         count[(v[i] / exp) % 10]++;
-        operations += 4;
+        operations += 4; // array access, division, modulo, increment
       }
   
       for (long long i = 1; i < 10; i++) {
+        comparisons++; // for condition
         count[i] += count[i - 1];
-        operations += 3;
+        operations += 3; // 2 array accesses + addition
       }
   
       for (long long i = n - 1; i >= 0; i--) {
+        comparisons++; // for condition
         long long digit = (v[i] / exp) % 10; operations += 4;
         output[count[digit] - 1] = v[i]; operations++;
         count[digit]--; operations++;
       }
   
       for (long long i = 0; i < n; i++) {
+        comparisons++; // for condition
         v[i] = output[i]; operations += 2;
       }
   
       exp *= 10; operations++;
     }
   
-    std::cout << "Radix Sort Base 10 did " << operations << " operations.\n";
-  }
-  
+    std::cout << "Radix Sort Base 10 did " << operations << " operations and " << comparisons << " comparisons.\n";
+}
 
-  void RadixSortBase2pow16(vector<long long> &v, long long n, long long maxim) {
-    unsigned long long operations = 0;
+void RadixSortBase2pow16(vector<long long> &v, long long n, long long maxim) {
+    unsigned long long operations = 0, comparisons = 0;
     vector<long long> output(n); operations += n;
   
     const long long BASE = 65536; operations++;
@@ -49,43 +52,48 @@ void RadixSortBase10(vector<long long> &v, long long n, long long maxim) {
     long long exp = 1; operations++;
   
     while (maxim / exp > 0) {
-      operations++; // while check
+      comparisons++; // while check
       vector<long long> count(BASE, 0); operations += BASE;
   
       for (long long i = 0; i < n; i++) {
+        comparisons++; // for condition
         count[(v[i] / exp) % BASE]++;
         operations += 4; // indexing + div + mod + increment
       }
   
       for (long long i = 1; i < BASE; i++) {
+        comparisons++; // for condition
         count[i] += count[i - 1];
         operations += 3;
       }
   
       for (long long i = n - 1; i >= 0; i--) {
+        comparisons++; // for condition
         long long digit = (v[i] / exp) % BASE; operations += 4;
         output[count[digit] - 1] = v[i]; operations++;
         count[digit]--; operations++;
       }
   
       for (long long i = 0; i < n; i++) {
+        comparisons++; // for condition
         v[i] = output[i]; operations += 2;
       }
   
       exp *= BASE; operations++;
     }
   
-    std::cout << "Radix Sort Base 2^16 did " << operations << " operations.\n";
-  }
-  
+    std::cout << "Radix Sort Base 2^16 did " << operations << " operations and " << comparisons << " comparisons.\n";
+}
 
 void MergeSort(vector<long long> &v, long long n) {
-    unsigned long long operations = 0;
+    unsigned long long operations = 0, comparisons = 0;
     vector<long long> output(n); operations += n;
 
     for (long long width = 1; width < n; width *= 2) {
+        comparisons++; // for condition
         operations++;
         for (long long i = 0; i < n; i += 2 * width) {
+            comparisons++; // for condition
             operations++;
             long long left = i, mid = min(i + width, n), right = min(i + 2 * width, n);
             operations += 3;
@@ -93,75 +101,85 @@ void MergeSort(vector<long long> &v, long long n) {
             long long i1 = left, i2 = mid, j = left;
 
             while (i1 < mid && i2 < right) {
-                operations += 2;
+                comparisons += 2; // while conditions (i1 < mid && i2 < right)
                 if (v[i1] <= v[i2]) {
-                output[j++] = v[i1++]; operations += 3;
+                    comparisons++; // comparison for if condition
+                    output[j++] = v[i1++]; operations += 3;
                 } else {
-                output[j++] = v[i2++]; operations += 3;
+                    output[j++] = v[i2++]; operations += 3;
                 }
             }
 
             while (i1 < mid) {
+                comparisons++; // while condition
                 output[j++] = v[i1++]; operations += 3;
             }
 
             while (i2 < right) {
+                comparisons++; // while condition
                 output[j++] = v[i2++]; operations += 3;
             }
 
             for (long long k = left; k < right; k++) {
+                comparisons++; // for condition
                 v[k] = output[k]; operations += 2;
             }
         }
     }
 
-    std::cout << "Merge Sort did " << operations << " operations.\n";
+    std::cout << "Merge Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
-
-
 void ShellSort(vector<long long> &v, long long n) {
-    unsigned long long operations = 0;
+    unsigned long long operations = 0, comparisons = 0;
   
     for (long long gap = n / 2; gap > 0; gap /= 2) {
+      comparisons++; // for condition
       operations++;
       for (long long i = gap; i < n; i++) {
+        comparisons++; // for condition
         long long temp = v[i]; operations += 2;
         long long j;
         for (j = i; j >= gap && v[j - gap] > temp; j -= gap) {
+          comparisons += 2; // j >= gap && v[j - gap] > temp
           v[j] = v[j - gap]; operations += 3;
         }
+        comparisons++; // final check that breaks the loop
         v[j] = temp; operations++;
       }
     }
   
-    std::cout << "Shell Sort did " << operations << " operations.\n";
+    std::cout << "Shell Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
-  
 
 void ShellSortCiura(vector<long long> &v, long long n) {
-    unsigned long long operations = 0;
+    unsigned long long operations = 0, comparisons = 0;
     vector<long long> gaps = {1, 4, 10, 23, 57, 132, 301, 701, 1750};
     operations += gaps.size();
   
     while (gaps.back() < n / 2.25) {
+      comparisons++; // while condition
       gaps.push_back(gaps.back() * 2.25);
       operations++;
     }
   
     for (int k = gaps.size() - 1; k >= 0; k--) {
+      comparisons++; // for condition
       long long gap = gaps[k]; operations++;
       for (long long i = gap; i < n; i++) {
+        comparisons++; // for condition
         long long temp = v[i]; operations += 2;
         long long j;
         for (j = i; j >= gap && v[j - gap] > temp; j -= gap) {
+          comparisons += 2; // j >= gap && v[j - gap] > temp
           v[j] = v[j - gap]; operations += 3;
         }
+        comparisons++; // final check that breaks the loop
         v[j] = temp; operations++;
       }
     }
   
-    std::cout << "Shell Sort (Ciura) did " << operations << " operations.\n";
+    std::cout << "Shell Sort (Ciura) did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void CountSort(vector<long long> &v, long long n, long long maxim) {
@@ -170,185 +188,193 @@ void CountSort(vector<long long> &v, long long n, long long maxim) {
       return;
     }
   
-    unsigned long long operations = 0;
+    unsigned long long operations = 0, comparisons = 0;
   
     vector<long long> count(maxim + 1, 0); operations += maxim + 1;
     vector<long long> output(n); operations += n;
   
     for (long long i = 0; i < n; i++) {
+      comparisons++; // for condition
       count[v[i]]++; operations += 2;
     }
   
     for (long long i = 1; i <= maxim; i++) {
+      comparisons++; // for condition
       count[i] += count[i - 1]; operations += 2;
     }
   
     for (long long i = n - 1; i >= 0; i--) {
+      comparisons++; // for condition
       output[count[v[i]] - 1] = v[i]; operations += 3;
       count[v[i]]--; operations += 2;
     }
   
     for (long long i = 0; i < n; i++) {
+      comparisons++; // for condition
       v[i] = output[i]; operations += 2;
     }
   
-    std::cout << "Count Sort did " << operations << " operations.\n";
+    std::cout << "Count Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
-void heapify(vector<long long> &v, long long n, long long i, unsigned long long &operations) {
+void heapify(vector<long long> &v, long long n, long long i, unsigned long long &operations, unsigned long long &comparisons) {
     long long temp = v[i]; operations += 2;
     long long child;
   
     while ((child = 2 * i + 1) < n) {
+      comparisons++; // while condition check
       operations += 2;
       if (child + 1 < n && v[child] < v[child + 1]) {
+        comparisons += 2; // child + 1 < n && v[child] < v[child + 1]
         child++; operations++;
       }
   
       if (temp < v[child]) {
+        comparisons++; // temp < v[child]
         v[i] = v[child]; i = child; operations += 3;
-      } else break;
+      } else {
+        comparisons++; // same if condition but falls to else
+        break;
+      }
     }
   
     v[i] = temp; operations++;
 }
   
 void HeapSort(vector<long long> &v, long long n) {
-    unsigned long long operations = 0;
+    unsigned long long operations = 0, comparisons = 0;
   
     for (long long i = n / 2 - 1; i >= 0; i--) {
-      heapify(v, n, i, operations);
+      comparisons++; // for condition
+      heapify(v, n, i, operations, comparisons);
       operations++;
     }
   
     for (long long i = n - 1; i > 0; i--) {
+      comparisons++; // for condition
       swap(v[0], v[i]); operations += 3;
-      heapify(v, i, 0, operations);
+      heapify(v, i, 0, operations, comparisons);
     }
   
-    std::cout << "Heap Sort did " << operations << " operations.\n";
-  }
-  
-
-void QuickSortMiddleOps(vector<long long> &v, int left, int right, unsigned long long &operations) {
-    if(left < right) {
-        operations++;
-        int m = (left + right) / 2; operations++;
-        long long aux = v[left]; operations += 2;
-        v[left] = v[m]; v[m] = aux; operations += 3;
-
-        int i = left, j = right, d = 0; operations += 3;
-
-        while(i < j) {
-        operations++;
-        if(v[i] > v[j]) {
-            aux = v[i]; v[i] = v[j]; v[j] = aux; operations += 4;
-            d = 1 - d; operations++;
-        }
-        i += d; j -= 1 - d; operations += 2;
-        }
-
-        QuickSortMiddleOps(v, left, i - 1, operations);
-        QuickSortMiddleOps(v, i + 1, right, operations);
-    }
-}
-  
-void QuickSortMiddle(vector<long long> &v, int left, int right) {
-    unsigned long long operations = 0;
-    QuickSortMiddleOps(v, left, right, operations);
-    std::cout << "QuickSort (middle) did " << operations << " operations.\n";
+    std::cout << "Heap Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
-void QuickSortMedian3Ops(vector<long long> &v, int left, int right, unsigned long long &operations) {
-    if(left < right) {
-      operations++;
-      int m = (left + right) / 2; operations++;
-  
-      if(v[left] > v[m]) { swap(v[left], v[m]); operations += 3; }
-      if(v[m] > v[right]) { swap(v[m], v[right]); operations += 3; }
-      if(v[left] > v[m]) { swap(v[left], v[m]); operations += 3; }
-  
-      swap(v[left], v[m]); operations += 3;
-  
-      int i = left, j = right, d = 0; operations += 3;
-      while(i < j) {
-        operations++;
-        if(v[i] > v[j]) {
-          swap(v[i], v[j]); operations += 3;
-          d = 1 - d; operations++;
+void QuickSortMiddle(vector<long long>& v, int low, int high, unsigned long long &operations, unsigned long long &comparisons) {
+    operations++;
+    comparisons++; // if condition
+    if(low < high) {
+        int i = low, j = high; operations += 2;
+        long long pivot = v[(low + high) / 2]; operations++;
+        while(i <= j) {
+            comparisons++; // while condition
+            while(v[i] < pivot) {
+                comparisons++; // while condition
+                i++; operations++;
+            }
+            while(v[j] > pivot) {
+                comparisons++; // while condition
+                j--; operations++;
+            }
+            comparisons++; // if condition
+            if(i <= j) {
+                swap(v[i], v[j]); operations += 3;
+                i++; j--; operations += 2;
+            }
         }
-        i += d; j -= 1 - d; operations += 2;
-      }
-  
-      QuickSortMedian3Ops(v, left, i - 1, operations);
-      QuickSortMedian3Ops(v, i + 1, right, operations);
+        comparisons++; if(low < j) QuickSortMiddle(v, low, j, operations, comparisons);
+        comparisons++; if(i < high) QuickSortMiddle(v, i, high, operations, comparisons);
     }
-  }
-  
-void QuickSortMedian3(vector<long long> &v, int left, int right) {
-    unsigned long long operations = 0;
-    QuickSortMedian3Ops(v, left, right, operations);
-    std::cout << "QuickSort (median of 3) did " << operations << " operations.\n";
 }
 
-pair<int, int> PartitionEqual(vector<long long> &v, int left, int right, unsigned long long &operations) {
-    long long pivot = v[left];
-    int lt = left;       
-    int gt = right;      
-    int i = left + 1;
-  
-    while(i <= gt) {
-      operations++;
-      if(v[i] < pivot) {
-        swap(v[lt], v[i]); operations += 3;
-        lt++; i++;
-      } else if(v[i] > pivot) {
-        swap(v[i], v[gt]); operations += 3;
-        gt--;
-      } else {
-        i++;
-      }
-    }
-    return {lt, gt}; 
-  }
-  
+void QuickSortMedian3(vector<long long>& v, int low, int high, unsigned long long &operations, unsigned long long &comparisons) {
+    operations++;
+    comparisons++; // if condition
+    if(low < high) {
+        int mid = low + (high - low) / 2; operations++;
 
-  void QuickSortMedian5Ops(vector<long long> &v, int left, int right, unsigned long long &operations) {
-    if(left < right) {
-      operations++;
-      if (right - left >= 4) {
-        int i1 = left;
-        int i2 = left + (right - left) / 4;
-        int i3 = (left + right) / 2;
-        int i4 = right - (right - left) / 4;
-        int i5 = right;
-        operations += 5;
-  
-        vector<pair<long long, int>> samples = {
-          {v[i1], i1}, {v[i2], i2}, {v[i3], i3}, {v[i4], i4}, {v[i5], i5}
+        comparisons++; // if condition
+        if(v[low] > v[mid]) { swap(v[low], v[mid]); operations += 3; }
+
+        comparisons++; // if condition
+        if(v[low] > v[high]) { swap(v[low], v[high]); operations += 3; }
+
+        comparisons++; // if condition
+        if(v[mid] > v[high]) { swap(v[mid], v[high]); operations += 3; }
+
+        long long pivot = v[mid]; operations++;
+
+        int i = low, j = high; operations += 2;
+        while(i <= j) {
+            comparisons++; // while condition
+            while(v[i] < pivot) {
+                comparisons++; // while condition
+                i++; operations++;
+            }
+            while(v[j] > pivot) {
+                comparisons++; // while condition
+                j--; operations++;
+            }
+            comparisons++; // if condition
+            if(i <= j) {
+                swap(v[i], v[j]); operations += 3;
+                i++; j--; operations += 2;
+            }
+        }
+        comparisons++; if(low < j) QuickSortMedian3(v, low, j, operations, comparisons);
+        comparisons++; if(i < high) QuickSortMedian3(v, i, high, operations, comparisons);
+    }
+}
+
+void QuickSortMedian5(vector<long long>& v, int low, int high, unsigned long long &operations, unsigned long long &comparisons) {
+    operations++;
+    comparisons++; // if condition
+    if(low < high) {
+        int idx1 = low;
+        int idx2 = low + (high - low) / 4;
+        int idx3 = low + (high - low) / 2;
+        int idx4 = low + 3 * (high - low) / 4;
+        int idx5 = high;
+        vector<pair<long long,int>> samples = {
+            {v[idx1], idx1},
+            {v[idx2], idx2},
+            {v[idx3], idx3},
+            {v[idx4], idx4},
+            {v[idx5], idx5}
         };
-        sort(samples.begin(), samples.end()); operations += 5 * log2(5);
-  
-        swap(v[left], v[samples[2].second]); operations += 3;
-      } else {
-        int m = (left + right) / 2; operations++;
-        if(v[left] > v[m]) { swap(v[left], v[m]); operations += 3; }
-        if(v[m] > v[right]) { swap(v[m], v[right]); operations += 3; }
-        if(v[left] > v[m]) { swap(v[left], v[m]); operations += 3; }
-        swap(v[left], v[m]); operations += 3;
-      }
-  
-      auto [lt, gt] = PartitionEqual(v, left, right, operations);
-  
-      QuickSortMedian5Ops(v, left, lt - 1, operations);
-      QuickSortMedian5Ops(v, gt + 1, right, operations);
+        operations += 10; // Creating pairs and assignments
+
+        // Sorting samples involves multiple comparisons and operations
+        // For simplicity, we'll count the sort operation as a bulk operation
+        // In a real quicksort implementation, this would be ~10 comparisons and operations
+        sort(samples.begin(), samples.end(), [](auto &a, auto &b) {
+            return a.first < b.first;
+        });
+        operations += 10; // Approximate operations for sorting 5 elements
+        comparisons += 10; // Approximate comparisons for sorting 5 elements
+
+        int medianIdx = samples[2].second; operations++;
+        long long pivot = v[medianIdx]; operations++;
+
+        int i = low, j = high; operations += 2;
+        while(i <= j) {
+            comparisons++; // while condition
+            while(v[i] < pivot) {
+                comparisons++; // while condition
+                i++; operations++;
+            }
+            while(v[j] > pivot) {
+                comparisons++; // while condition
+                j--; operations++;
+            }
+            comparisons++; // if condition
+            if(i <= j) {
+                swap(v[i], v[j]); operations += 3;
+                i++; j--; operations += 2;
+            }
+        }
+        comparisons++; if(low < j) QuickSortMedian5(v, low, j, operations, comparisons);
+        comparisons++; if(i < high) QuickSortMedian5(v, i, high, operations, comparisons);
     }
-  }
-  
-  
-void QuickSortMedian5(vector<long long> &v, int left, int right) {
-    unsigned long long operations = 0;
-    std::cout << "QuickSort (median of 5) did " << operations << " operations.\n";
 }
 
 long long randomNumber(int No, long long min, long long max) {
@@ -429,25 +455,12 @@ vector<long long> generateAlmostDecreasing(int n, long long min, long long max, 
 }
 
 
-int main() {
-    int t = 1;
-    long long n = 1e6;
-    long long maxim = 2e14;
-    vector<long long> aux, v;
-    srand(time(0) + 1);
-
-    // aux = generateAlmostDecreasing(1e7, 1, maxim, 90);
+void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
+    vector<long long> v;
     clock_t begin, end;
     double elapsed_seconds;
-
-    begin = clock();
-    aux = generateRandomNumbers(1e6, 1, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " random numbers from" << 1 << " to " << maxim << endl;
-
-
+    unsigned long long operations, comparisons;
+    
     v = aux;  
     // Radix Sort Base 10
     begin = clock();
@@ -455,7 +468,6 @@ int main() {
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
 
     v = aux;
     // Radix Sort Base 2^16
@@ -474,7 +486,7 @@ int main() {
     cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
     v = aux;
-    //shell sort
+    // Shell Sort
     begin = clock();
     ShellSort(v, n);
     end = clock();
@@ -490,7 +502,7 @@ int main() {
     cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
     v = aux;
-    //count sort
+    // Count Sort
     begin = clock();
     CountSort(v, n, maxim);
     end = clock();
@@ -505,33 +517,64 @@ int main() {
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
 
-    // QuickSort with middle pivot (original)
+    // QuickSort with middle pivot
     v = aux;
+    operations = 0;
+    comparisons = 0;
     begin = clock();
-    QuickSortMiddle(v, 0, n-1);
+    QuickSortMiddle(v, 0, n-1, operations, comparisons);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
+    std::cout << "QuickSort (middle pivot) did " << operations << " operations and " << comparisons << " comparisons.\n";
+    std::cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
+    
     // QuickSort with median of 3
     v = aux;
+    operations = 0;
+    comparisons = 0;
     begin = clock();
-    QuickSortMedian3(v, 0, n-1);
+    QuickSortMedian3(v, 0, n-1, operations, comparisons);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
+    std::cout << "QuickSort (median of 3) did " << operations << " operations and " << comparisons << " comparisons.\n";
+    std::cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
+    
     // QuickSort with median of 5
     v = aux;
+    operations = 0;
+    comparisons = 0;
     begin = clock();
-    QuickSortMedian5(v, 0, n-1);
+    QuickSortMedian5(v, 0, n-1, operations, comparisons);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+    std::cout << "QuickSort (median of 5) did " << operations << " operations and " << comparisons << " comparisons.\n";
+    std::cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
+}
 
+int main() {
+    int t = 1;
+    long long n = 1e6;
+    long long maxim = 2e14;
+    vector<long long> aux;
+    clock_t begin, end;
+    double elapsed_seconds;
+    
+    srand(time(nullptr) + 1);
+
+    ////////////////////////////////// TEST CASE 1 /////////////////////////////////////////
+    cout << "TEST CASE 1" << endl;
+    t = 1;
+
+    begin = clock();
+    aux = generateRandomNumbers(1e6, 1, maxim);
+    end = clock();
+    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+    cout << "Generated " << n << " random numbers from " << 1 << " to " << maxim << endl << endl;
+
+    runAllSorts(aux, n, maxim, t);
 
     ////////////////////////////////// TEST CASE 2 /////////////////////////////////////////
-
     cout << endl << "TEST CASE 2" << endl;
     t = 2;
 
@@ -540,92 +583,11 @@ int main() {
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated 1 random number reapeted for" << n << " times "<< endl;
+    cout << "Generated 1 random number repeated " << n << " times" << endl << endl;
 
-
-    v = aux;  
-    // Radix Sort Base 10
-    begin = clock();
-    RadixSortBase10(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-
-    v = aux;
-    // Radix Sort Base 2^16
-    begin = clock();
-    RadixSortBase2pow16(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Merge Sort
-    begin = clock();
-    MergeSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //shell sort
-    begin = clock();
-    ShellSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Shell Sort with Ciura sequence
-    begin = clock();
-    ShellSortCiura(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //count sort
-    begin = clock();
-    CountSort(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Heap Sort
-    begin = clock();
-    HeapSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with middle pivot (original)
-    v = aux;
-    begin = clock();
-    QuickSortMiddle(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 3
-    v = aux;
-    begin = clock();
-    QuickSortMedian3(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 5
-    v = aux;
-    begin = clock();
-    QuickSortMedian5(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+    runAllSorts(aux, n, maxim, t);
 
     ////////////////////////////////// TEST CASE 3 /////////////////////////////////////////
-
     cout << endl << "TEST CASE 3" << endl;
     t = 3;
 
@@ -634,187 +596,25 @@ int main() {
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " increasing random numbers from 1 to" << maxim << endl;
+    cout << "Generated " << n << " increasing random numbers from 1 to " << maxim << endl << endl;
 
+    runAllSorts(aux, n, maxim, t);
 
-    v = aux;  
-    // Radix Sort Base 10
+    ////////////////////////////////// TEST CASE 4 /////////////////////////////////////////
+    cout << endl << "TEST CASE 4" << endl;
+    t = 4;
+
     begin = clock();
-    RadixSortBase10(v, n, maxim);
+    aux = generateAlmostIncreasing(1e6, 1, maxim, 85);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+    cout << "Generated " << n << " almost increasing random numbers from 1 to " << maxim << endl;
+    cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
 
+    runAllSorts(aux, n, maxim, t);
 
-    v = aux;
-    // Radix Sort Base 2^16
-    begin = clock();
-    RadixSortBase2pow16(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Merge Sort
-    begin = clock();
-    MergeSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //shell sort
-    begin = clock();
-    ShellSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Shell Sort with Ciura sequence
-    begin = clock();
-    ShellSortCiura(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //count sort
-    begin = clock();
-    CountSort(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Heap Sort
-    begin = clock();
-    HeapSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with middle pivot (original)
-    v = aux;
-    begin = clock();
-    QuickSortMiddle(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 3
-    v = aux;
-    begin = clock();
-    QuickSortMedian3(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 5
-    v = aux;
-    begin = clock();
-    QuickSortMedian5(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-     ////////////////////////////////// TEST CASE 4 /////////////////////////////////////////
-
-     cout << endl << "TEST CASE 4" << endl;
-     t = 4;
- 
-     begin = clock();
-     aux = generateAlmostIncreasing(1e6, 1, maxim, 85);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-     cout << "Generated " << n << " increasing random numbers from 1 to" << maxim << endl;
-     cout << "Alpha = 85 (sorted coefficient)" << endl;
- 
- 
-     v = aux;  
-     // Radix Sort Base 10
-     begin = clock();
-     RadixSortBase10(v, n, maxim);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
- 
-     v = aux;
-     // Radix Sort Base 2^16
-     begin = clock();
-     RadixSortBase2pow16(v, n, maxim);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     // Merge Sort
-     begin = clock();
-     MergeSort(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     //shell sort
-     begin = clock();
-     ShellSort(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     // Shell Sort with Ciura sequence
-     begin = clock();
-     ShellSortCiura(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     //count sort
-     begin = clock();
-     CountSort(v, n, maxim);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     // Heap Sort
-     begin = clock();
-     HeapSort(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     // QuickSort with middle pivot (original)
-     v = aux;
-     begin = clock();
-     QuickSortMiddle(v, 0, n-1);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     // QuickSort with median of 3
-     v = aux;
-     begin = clock();
-     QuickSortMedian3(v, 0, n-1);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     // QuickSort with median of 5
-     v = aux;
-     begin = clock();
-     QuickSortMedian5(v, 0, n-1);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-         ////////////////////////////////// TEST CASE 5 /////////////////////////////////////////
-
+    ////////////////////////////////// TEST CASE 5 /////////////////////////////////////////
     cout << endl << "TEST CASE 5" << endl;
     t = 5;
 
@@ -823,190 +623,25 @@ int main() {
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " decreasing random numbers from 1 to" << maxim << endl;
+    cout << "Generated " << n << " decreasing random numbers from 1 to " << maxim << endl << endl;
 
+    runAllSorts(aux, n, maxim, t);
 
-    v = aux;  
-    // Radix Sort Base 10
+    ////////////////////////////////// TEST CASE 6 /////////////////////////////////////////
+    cout << endl << "TEST CASE 6" << endl;
+    t = 6;
+
     begin = clock();
-    RadixSortBase10(v, n, maxim);
+    aux = generateAlmostDecreasing(1e6, 1, maxim, 85);
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
+    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+    cout << "Generated " << n << " almost decreasing random numbers from 1 to " << maxim << endl;
+    cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
 
+    runAllSorts(aux, n, maxim, t);
 
-    v = aux;
-    // Radix Sort Base 2^16
-    begin = clock();
-    RadixSortBase2pow16(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Merge Sort
-    begin = clock();
-    MergeSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //shell sort
-    begin = clock();
-    ShellSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Shell Sort with Ciura sequence
-    begin = clock();
-    ShellSortCiura(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //count sort
-    begin = clock();
-    CountSort(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Heap Sort
-    begin = clock();
-    HeapSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with middle pivot (original)
-    v = aux;
-    begin = clock();
-    QuickSortMiddle(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 3
-    v = aux;
-    begin = clock();
-    QuickSortMedian3(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 5
-    v = aux;
-    begin = clock();
-    QuickSortMedian5(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-     
-
-     ////////////////////////////////// TEST CASE 6 /////////////////////////////////////////
-
-     cout << endl << "TEST CASE 6" << endl;
-     t = 6;
- 
-     begin = clock();
-     aux = generateAlmostIncreasing(1e6, 1, maxim, 85);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-     cout << "Generated " << n << " decreasing random numbers from 1 to" << maxim << endl;
-     cout << "Alpha = 85 (sorted coefficient)" << endl;
- 
- 
-     v = aux;  
-     // Radix Sort Base 10
-     begin = clock();
-     RadixSortBase10(v, n, maxim);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
- 
-     v = aux;
-     // Radix Sort Base 2^16
-     begin = clock();
-     RadixSortBase2pow16(v, n, maxim);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     // Merge Sort
-     begin = clock();
-     MergeSort(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     //shell sort
-     begin = clock();
-     ShellSort(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     // Shell Sort with Ciura sequence
-     begin = clock();
-     ShellSortCiura(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     //count sort
-     begin = clock();
-     CountSort(v, n, maxim);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     v = aux;
-     // Heap Sort
-     begin = clock();
-     HeapSort(v, n);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     // QuickSort with middle pivot (original)
-     v = aux;
-     begin = clock();
-     QuickSortMiddle(v, 0, n-1);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     // QuickSort with median of 3
-     v = aux;
-     begin = clock();
-     QuickSortMedian3(v, 0, n-1);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
- 
-     // QuickSort with median of 5
-     v = aux;
-     begin = clock();
-     QuickSortMedian5(v, 0, n-1);
-     end = clock();
-     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-     cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-
-         ////////////////////////////////// TEST CASE 7 /////////////////////////////////////////
-
+    ////////////////////////////////// TEST CASE 7 /////////////////////////////////////////
     cout << endl << "TEST CASE 7" << endl;
     t = 7;
     maxim = 100;
@@ -1016,88 +651,10 @@ int main() {
     end = clock();
     elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
     cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " increasing random numbers from 1 to" << maxim << endl;
+    cout << "Generated " << n << " random numbers with small range from 1 to " << maxim << endl << endl;
 
+    runAllSorts(aux, n, maxim, t);
 
-    v = aux;  
-    // Radix Sort Base 10
-    begin = clock();
-    RadixSortBase10(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 10 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-
-    v = aux;
-    // Radix Sort Base 2^16
-    begin = clock();
-    RadixSortBase2pow16(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Radix Sort Base 2^16 in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Merge Sort
-    begin = clock();
-    MergeSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Merge Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //shell sort
-    begin = clock();
-    ShellSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Shell Sort with Ciura sequence
-    begin = clock();
-    ShellSortCiura(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Shell Sort (Ciura) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    //count sort
-    begin = clock();
-    CountSort(v, n, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Count Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    v = aux;
-    // Heap Sort
-    begin = clock();
-    HeapSort(v, n);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for Heap Sort in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with middle pivot (original)
-    v = aux;
-    begin = clock();
-    QuickSortMiddle(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (middle pivot) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 3
-    v = aux;
-    begin = clock();
-    QuickSortMedian3(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 3) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-
-    // QuickSort with median of 5
-    v = aux;
-    begin = clock();
-    QuickSortMedian5(v, 0, n-1);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << endl;
-  return 0;
+    return 0;
 }
+
