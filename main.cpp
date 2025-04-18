@@ -1,10 +1,8 @@
 #include <bits/stdc++.h>
 #include <ctime>
-#include <thread> // added for multithreading
 
 using namespace std;
 
-// Structure to store sorting algorithm results
 struct SortResult {
     string name;
     double time;
@@ -13,7 +11,6 @@ struct SortResult {
 };
 
 
-// Function to generate CSV file for a test case
 void generateCSV(const vector<SortResult>& results, int testCase, const string &testDescription) {
     string filename = "test_case_" + to_string(testCase) + "_results.csv";
     ofstream outFile(filename);
@@ -23,12 +20,9 @@ void generateCSV(const vector<SortResult>& results, int testCase, const string &
         return;
     }
 
-    // Write title as commented line
     outFile << "# Test Description: " << testDescription << endl;
-    // Write header
     outFile << "Algorithm,Time (seconds),Operations,Comparisons" << endl;
 
-    // Write data
     for (const auto& result : results) {
         outFile << result.name << ","
                 << result.time << ","
@@ -49,14 +43,12 @@ void generateConsolidatedCSV(vector<vector<SortResult>>& allResults, const vecto
         return;
     }
 
-    // Write header with test case columns
     outFile << "Algorithm";
     for (size_t i = 0; i < testDescriptions.size(); i++) {
         outFile << ",Test " << (i+1) << " Time";
     }
     outFile << endl;
 
-    // Get all algorithm names
     set<string> algorithmNames;
     for (const auto& results : allResults) {
         for (const auto& result : results) {
@@ -64,19 +56,17 @@ void generateConsolidatedCSV(vector<vector<SortResult>>& allResults, const vecto
         }
     }
 
-    // Write data for each algorithm across all tests
     for (const auto& algoName : algorithmNames) {
         outFile << algoName;
 
         for (const auto& results : allResults) {
-            // Find this algorithm in the current test results
             auto it = find_if(results.begin(), results.end(),
                              [&algoName](const SortResult& r) { return r.name == algoName; });
 
             if (it != results.end()) {
                 outFile << "," << it->time;
             } else {
-                outFile << ",";  // Empty if algorithm wasn't run in this test
+                outFile << ",";
             }
         }
         outFile << endl;
@@ -123,7 +113,6 @@ void RadixSortBase10(vector<long long> &v, long long n, long long maxim, unsigne
       exp *= 10; operations++;
     }
 
-    std::cout << "Radix Sort Base 10 did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void RadixSortBase2pow16(vector<long long> &v, long long n, long long maxim,unsigned long long &operations,unsigned long long &comparisons) {
@@ -164,7 +153,6 @@ void RadixSortBase2pow16(vector<long long> &v, long long n, long long maxim,unsi
       exp *= BASE; operations++;
     }
 
-    std::cout << "Radix Sort Base 2^16 did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void MergeSort(vector<long long> &v, long long n, unsigned long long &operations, unsigned long long &comparisons) {
@@ -208,7 +196,6 @@ void MergeSort(vector<long long> &v, long long n, unsigned long long &operations
         }
     }
 
-    std::cout << "Merge Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void ShellSort(vector<long long> &v, long long n, unsigned long long &operations, unsigned long long &comparisons) {
@@ -229,7 +216,6 @@ void ShellSort(vector<long long> &v, long long n, unsigned long long &operations
       }
     }
 
-    std::cout << "Shell Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void ShellSortCiura(vector<long long> &v, long long n, unsigned long long &operations, unsigned long long &comparisons) {
@@ -258,7 +244,6 @@ void ShellSortCiura(vector<long long> &v, long long n, unsigned long long &opera
       }
     }
 
-    std::cout << "Shell Sort (Ciura) did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void CountSort(vector<long long> &v, long long n, long long maxim, unsigned long long &operations, unsigned long long &comparisons) {
@@ -292,7 +277,6 @@ void CountSort(vector<long long> &v, long long n, long long maxim, unsigned long
       v[i] = output[i]; operations += 2;
     }
 
-    std::cout << "Count Sort did " << operations << " operations and " << comparisons << " comparisons.\n";
 }
 
 void heapify(vector<long long> &v, long long n, long long i, unsigned long long &operations, unsigned long long &comparisons) {
@@ -646,20 +630,14 @@ void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t, co
     std::cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
     results.push_back({"QuickSort (median of 5)", elapsed_seconds, operations, comparisons});
 
-    // Generate CSV file for this test case with updated title containing n and maxim
     string fullTestDescription = testDescription + " (n: " + to_string(n) + ", max: " + to_string(maxim) + ")";
     generateCSV(results, t, fullTestDescription);
 }
 
 
 int main() {
-    // Remove now-unneeded global CSV consolidation variables.
-    // ...existing code before test cases...
-
-    vector<thread> testThreads;
-
     // Test case 1
-    testThreads.push_back(thread([](){
+    {
         int t = 1;
         long long n = 1e8;
         long long maxim = 1e8;
@@ -672,10 +650,10 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated " << n << " random numbers from " << 1 << " to " << maxim << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 2
-    testThreads.push_back(thread([](){
+    {
         int t = 2;
         long long n = 1e8;
         long long maxim = 1e8;
@@ -688,10 +666,10 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated 1 random number repeated " << n << " times" << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 3
-    testThreads.push_back(thread([](){
+    {
         int t = 3;
         long long n = 1e8;
         long long maxim = 2e14;
@@ -704,10 +682,10 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated " << n << " increasing random numbers from 1 to " << maxim << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 4
-    testThreads.push_back(thread([](){
+    {
         int t = 4;
         long long n = 1e8;
         long long maxim = 2e14;
@@ -721,10 +699,10 @@ int main() {
         cout << "Generated " << n << " almost increasing random numbers from 1 to " << maxim << endl;
         cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 5
-    testThreads.push_back(thread([](){
+    {
         int t = 5;
         long long n = 1e8;
         long long maxim = 2e14;
@@ -737,10 +715,10 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated " << n << " decreasing random numbers from 1 to " << maxim << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 6
-    testThreads.push_back(thread([](){
+    {
         int t = 6;
         long long n = 1e8;
         long long maxim = 2e14;
@@ -754,10 +732,10 @@ int main() {
         cout << "Generated " << n << " almost decreasing random numbers from 1 to " << maxim << endl;
         cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 7
-    testThreads.push_back(thread([](){
+    {
         int t = 7;
         long long n = 1e8;
         long long maxim = 100;
@@ -770,10 +748,10 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated " << n << " random numbers with small range from 1 to " << maxim << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 8
-    testThreads.push_back(thread([](){
+    {
         int t = 8;
         long long n = 1e8;
         long long maxim = 2e14;
@@ -786,10 +764,10 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated " << n << " random numbers with large range from 1 to " << maxim << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
+    }
 
     // Test case 9
-    testThreads.push_back(thread([](){
+    {
         int t = 9;
         long long n = 1e6;
         long long maxim = 1e6;
@@ -802,16 +780,11 @@ int main() {
         cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
         cout << "Generated " << n << " random numbers from 1 to " << maxim << endl << endl;
         runAllSorts(aux, n, maxim, t, testDesc);
-    }));
-
-    // Wait for all test threads to complete
-    for (auto& th : testThreads) {
-        th.join();
     }
 
     cout << "\nAll CSV files have been generated. You can now create graphs using these files." << endl;
     cout << "For individual test graphs, use test_case_X_results.csv files." << endl;
-    // Consolidated CSV generation removed for concurrent runs.
-    // ...existing code...
+
     return 0;
 }
+

@@ -1,0 +1,12 @@
+# Test Description: Random numbers with large range (n: 100000000, max: 200000000000000)
+Algorithm,Time (seconds),Operations,Comparisons
+Radix Sort Base 10,18.3237,18100000571,4500000150
+Radix Sort Base 2^16,5.36033,3700786428,900196608
+Merge Sort,32.3589,14000000055,9329079532
+Shell Sort,81.7929,48883954871,32589303256
+Shell Sort (Ciura),36.5445,12901390085,8600926729
+Count Sort,1.6e-05,0,0
+Heap Sort,54.8326,14448869177,7625077607
+QuickSort (middle pivot),17.2186,5912181115,3750078976
+QuickSort (median of 3),16.7802,5682518868,3518187515
+QuickSort (median of 5),20.0261,5526595269,3204188177

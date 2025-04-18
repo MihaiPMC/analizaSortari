@@ -4,20 +4,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def plot_csv(csv_file):
-    # Read first line to get test title if available
     test_title = None
     with open(csv_file, "r") as f:
         first_line = f.readline().strip()
         if first_line.startswith("# Test Description:"):
             test_title = first_line.replace("# Test Description:", "").strip()
-    # Read csv skipping commented lines
     df = pd.read_csv(csv_file, comment='#')
-    # Check if this is an individual test CSV or the consolidated CSV
     if 'Time (seconds)' in df.columns:
         algorithms = df['Algorithm']
         x = range(len(algorithms))
 
-        # Create a figure with three subplots (Time, Operations, Comparisons)
         fig, axs = plt.subplots(3, 1, figsize=(10, 15))
 
         axs[0].bar(x, df['Time (seconds)'], color='skyblue')
@@ -36,7 +32,6 @@ def plot_csv(csv_file):
         axs[2].set_xticklabels(algorithms, rotation=45, ha='right')
         
         if test_title:
-            # Set a common title at the top of the figure
             fig.suptitle(test_title, fontsize=16, y=0.99)
 
         plt.tight_layout(rect=[0, 0, 1, 0.96])
@@ -45,7 +40,6 @@ def plot_csv(csv_file):
         plt.close()
         print(f"Graph saved as {out_filename}")
     elif any(col.startswith("Test") for col in df.columns if col != 'Algorithm'):
-        # If CSV contains consolidated results with test columns like "Test 1 Time", "Test 2 Time", etc.
         tests = [col for col in df.columns if col.startswith("Test")]
         x = range(1, len(tests) + 1)
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -66,7 +60,6 @@ def plot_csv(csv_file):
         print(f"Skipping {csv_file}: unknown format")
 
 def main():
-    # Process all CSV files in current directory
     csv_files = glob.glob("*.csv")
     for csv_file in csv_files:
         plot_csv(csv_file)

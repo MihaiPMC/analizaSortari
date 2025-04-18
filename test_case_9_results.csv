@@ -1,0 +1,12 @@
+# Test Description: Small dataset (n: 1000000, max: 1000000)
+Algorithm,Time (seconds),Operations,Comparisons
+Radix Sort Base 10,0.0916,85000267,21000070
+Radix Sort Base 2^16,0.036999,25524286,6131072
+Merge Sort,0.250166,105000048,69178208
+Shell Sort,0.392236,202934548,135289705
+Shell Sort (Ciura),0.26434,94082135,62721425
+Count Sort,0.039306,11000000,4000000
+Heap Sort,0.234257,107907757,56350405
+QuickSort (middle pivot),0.134326,45035551,28883111
+QuickSort (median of 3),0.137207,43751098,27821201
+QuickSort (median of 5),0.163428,42358296,24800243
