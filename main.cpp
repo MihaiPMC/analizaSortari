@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <ctime>
+#include <thread> // added for multithreading
 
 using namespace std;
 
@@ -13,7 +14,7 @@ struct SortResult {
 
 
 // Function to generate CSV file for a test case
-void generateCSV(const vector<SortResult>& results, int testCase) {
+void generateCSV(const vector<SortResult>& results, int testCase, const string &testDescription) {
     string filename = "test_case_" + to_string(testCase) + "_results.csv";
     ofstream outFile(filename);
 
@@ -22,6 +23,8 @@ void generateCSV(const vector<SortResult>& results, int testCase) {
         return;
     }
 
+    // Write title as commented line
+    outFile << "# Test Description: " << testDescription << endl;
     // Write header
     outFile << "Algorithm,Time (seconds),Operations,Comparisons" << endl;
 
@@ -265,8 +268,8 @@ void CountSort(vector<long long> &v, long long n, long long maxim, unsigned long
     }
 
 
-    vector<long long> count(maxim + 1, 0); operations += maxim + 1;
-    vector<long long> output(n); operations += n;
+    vector<long long> count(maxim + 1, 0);
+    vector<long long> output(n);
 
     for (long long i = 0; i < n; i++) {
       comparisons++;
@@ -398,6 +401,18 @@ void QuickSortMedian3(vector<long long>& v, int low, int high, unsigned long lon
     }
 }
 
+int medianOfFive(vector<long long>& v, int idx1, int idx2, int idx3, int idx4, int idx5) {
+    int arr[5] = {idx1, idx2, idx3, idx4, idx5};
+    for (int i = 1; i < 5; i++) {
+        int j = i;
+        while (j > 0 && v[arr[j-1]] > v[arr[j]]) {
+            swap(arr[j-1], arr[j]);
+            j--;
+        }
+    }
+    return arr[2];
+}
+
 void QuickSortMedian5(vector<long long>& v, int low, int high, unsigned long long &operations, unsigned long long &comparisons) {
     operations++;
     comparisons++;
@@ -407,35 +422,14 @@ void QuickSortMedian5(vector<long long>& v, int low, int high, unsigned long lon
         int idx3 = low + (high - low) / 2;
         int idx4 = low + 3 * (high - low) / 4;
         int idx5 = high;
-        vector<pair<long long,int>> samples = {
-            {v[idx1], idx1},
-            {v[idx2], idx2},
-            {v[idx3], idx3},
-            {v[idx4], idx4},
-            {v[idx5], idx5}
-        };
-        operations += 10;
-
-        sort(samples.begin(), samples.end(), [](auto &a, auto &b) {
-            return a.first < b.first;
-        });
-        operations += 10;
-        comparisons += 10;
-
-        int medianIdx = samples[2].second; operations++;
+        int medianIdx = medianOfFive(v, idx1, idx2, idx3, idx4, idx5); operations++;
         long long pivot = v[medianIdx]; operations++;
 
         int i = low, j = high; operations += 2;
         while(i <= j) {
             comparisons++;
-            while(v[i] < pivot) {
-                comparisons++;
-                i++; operations++;
-            }
-            while(v[j] > pivot) {
-                comparisons++;
-                j--; operations++;
-            }
+            while(v[i] < pivot) { comparisons++; i++; operations++; }
+            while(v[j] > pivot) { comparisons++; j--; operations++; }
             comparisons++;
             if(i <= j) {
                 swap(v[i], v[j]); operations += 3;
@@ -525,7 +519,7 @@ vector<long long> generateAlmostDecreasing(int n, long long min, long long max, 
 }
 
 
-void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
+void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t, const string &testDescription) {
     vector<long long> v;
     clock_t begin, end;
     double elapsed_seconds;
@@ -652,131 +646,172 @@ void runAllSorts(vector<long long>& aux, long long n, long long maxim, int t) {
     std::cout << "Time taken for QuickSort (median of 5) in test case " << t << ": " << elapsed_seconds << " seconds" << std::endl;
     results.push_back({"QuickSort (median of 5)", elapsed_seconds, operations, comparisons});
 
-    // Generate CSV file for this test case
-    generateCSV(results, t);
+    // Generate CSV file for this test case with updated title containing n and maxim
+    string fullTestDescription = testDescription + " (n: " + to_string(n) + ", max: " + to_string(maxim) + ")";
+    generateCSV(results, t, fullTestDescription);
 }
 
 
 int main() {
-    int t = 1;
-    long long n = 1e6;
-    long long maxim = 2e14;
-    vector<long long> aux;
-    clock_t begin, end;
-    double elapsed_seconds;
-    vector<vector<SortResult>> allTestResults;
-    vector<string> testDescriptions;
+    // Remove now-unneeded global CSV consolidation variables.
+    // ...existing code before test cases...
 
-    srand(time(nullptr) + 1);
+    vector<thread> testThreads;
 
-    ////////////////////////////////// TEST CASE 1 /////////////////////////////////////////
-    cout << "TEST CASE 1" << endl;
-    t = 1;
-    testDescriptions.push_back("Random numbers");
+    // Test case 1
+    testThreads.push_back(thread([](){
+        int t = 1;
+        long long n = 1e8;
+        long long maxim = 1e8;
+        cout << "TEST CASE 1" << endl;
+        string testDesc = "Random numbers";
+        clock_t begin = clock();
+        vector<long long> aux = generateRandomNumbers(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " random numbers from " << 1 << " to " << maxim << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    begin = clock();
-    aux = generateRandomNumbers(1e6, 1, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " random numbers from " << 1 << " to " << maxim << endl << endl;
+    // Test case 2
+    testThreads.push_back(thread([](){
+        int t = 2;
+        long long n = 1e8;
+        long long maxim = 1e8;
+        cout << "\nTEST CASE 2" << endl;
+        string testDesc = "One repeated number";
+        clock_t begin = clock();
+        vector<long long> aux = generate1Number(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated 1 random number repeated " << n << " times" << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    runAllSorts(aux, n, maxim, t);
+    // Test case 3
+    testThreads.push_back(thread([](){
+        int t = 3;
+        long long n = 1e8;
+        long long maxim = 2e14;
+        cout << "\nTEST CASE 3" << endl;
+        string testDesc = "Increasing order";
+        clock_t begin = clock();
+        vector<long long> aux = generateIncreasing(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " increasing random numbers from 1 to " << maxim << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    ////////////////////////////////// TEST CASE 2 /////////////////////////////////////////
-    cout << endl << "TEST CASE 2" << endl;
-    t = 2;
-    testDescriptions.push_back("One repeated number");
+    // Test case 4
+    testThreads.push_back(thread([](){
+        int t = 4;
+        long long n = 1e8;
+        long long maxim = 2e14;
+        cout << "\nTEST CASE 4" << endl;
+        string testDesc = "Almost increasing order";
+        clock_t begin = clock();
+        vector<long long> aux = generateAlmostIncreasing(n, 1, maxim, 85);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " almost increasing random numbers from 1 to " << maxim << endl;
+        cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    begin = clock();
-    aux = generate1Number(1e6, 1, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated 1 random number repeated " << n << " times" << endl << endl;
+    // Test case 5
+    testThreads.push_back(thread([](){
+        int t = 5;
+        long long n = 1e8;
+        long long maxim = 2e14;
+        cout << "\nTEST CASE 5" << endl;
+        string testDesc = "Decreasing order";
+        clock_t begin = clock();
+        vector<long long> aux = generateDecreasing(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " decreasing random numbers from 1 to " << maxim << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    runAllSorts(aux, n, maxim, t);
+    // Test case 6
+    testThreads.push_back(thread([](){
+        int t = 6;
+        long long n = 1e8;
+        long long maxim = 2e14;
+        cout << "\nTEST CASE 6" << endl;
+        string testDesc = "Almost decreasing order";
+        clock_t begin = clock();
+        vector<long long> aux = generateAlmostDecreasing(n, 1, maxim, 85);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " almost decreasing random numbers from 1 to " << maxim << endl;
+        cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    ////////////////////////////////// TEST CASE 3 /////////////////////////////////////////
-    cout << endl << "TEST CASE 3" << endl;
-    t = 3;
-    testDescriptions.push_back("Increasing order");
+    // Test case 7
+    testThreads.push_back(thread([](){
+        int t = 7;
+        long long n = 1e8;
+        long long maxim = 100;
+        cout << "\nTEST CASE 7" << endl;
+        string testDesc = "Small range random numbers";
+        clock_t begin = clock();
+        vector<long long> aux = generateRandomNumbers(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " random numbers with small range from 1 to " << maxim << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    begin = clock();
-    aux = generateIncreasing(1e6, 1, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " increasing random numbers from 1 to " << maxim << endl << endl;
+    // Test case 8
+    testThreads.push_back(thread([](){
+        int t = 8;
+        long long n = 1e8;
+        long long maxim = 2e14;
+        cout << "\nTEST CASE 8" << endl;
+        string testDesc = "Random numbers with large range";
+        clock_t begin = clock();
+        vector<long long> aux = generateRandomNumbers(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " random numbers with large range from 1 to " << maxim << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    runAllSorts(aux, n, maxim, t);
+    // Test case 9
+    testThreads.push_back(thread([](){
+        int t = 9;
+        long long n = 1e6;
+        long long maxim = 1e6;
+        cout << "\nTEST CASE 9" << endl;
+        string testDesc = "Small dataset";
+        clock_t begin = clock();
+        vector<long long> aux = generateRandomNumbers(n, 1, maxim);
+        clock_t end = clock();
+        double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+        cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
+        cout << "Generated " << n << " random numbers from 1 to " << maxim << endl << endl;
+        runAllSorts(aux, n, maxim, t, testDesc);
+    }));
 
-    ////////////////////////////////// TEST CASE 4 /////////////////////////////////////////
-    cout << endl << "TEST CASE 4" << endl;
-    t = 4;
-    testDescriptions.push_back("Almost increasing order");
-
-    begin = clock();
-    aux = generateAlmostIncreasing(1e6, 1, maxim, 85);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " almost increasing random numbers from 1 to " << maxim << endl;
-    cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
-
-    runAllSorts(aux, n, maxim, t);
-
-    ////////////////////////////////// TEST CASE 5 /////////////////////////////////////////
-    cout << endl << "TEST CASE 5" << endl;
-    t = 5;
-    testDescriptions.push_back("Decreasing order");
-
-    begin = clock();
-    aux = generateDecreasing(1e6, 1, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " decreasing random numbers from 1 to " << maxim << endl << endl;
-
-    runAllSorts(aux, n, maxim, t);
-
-    ////////////////////////////////// TEST CASE 6 /////////////////////////////////////////
-    cout << endl << "TEST CASE 6" << endl;
-    t = 6;
-    testDescriptions.push_back("Almost decreasing order");
-
-    begin = clock();
-    aux = generateAlmostDecreasing(1e6, 1, maxim, 85);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " almost decreasing random numbers from 1 to " << maxim << endl;
-    cout << "Alpha = 85 (sorted coefficient)" << endl << endl;
-
-    runAllSorts(aux, n, maxim, t);
-
-    ////////////////////////////////// TEST CASE 7 /////////////////////////////////////////
-    cout << endl << "TEST CASE 7" << endl;
-    t = 7;
-    maxim = 100;
-    testDescriptions.push_back("Small range random numbers");
-
-    begin = clock();
-    aux = generateRandomNumbers(1e6, 1, maxim);
-    end = clock();
-    elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Time taken to generate random numbers: " << elapsed_seconds << " seconds" << endl;
-    cout << "Generated " << n << " random numbers with small range from 1 to " << maxim << endl << endl;
-
-    runAllSorts(aux, n, maxim, t);
-
-    // Generate consolidated CSV with results from all tests
-    generateConsolidatedCSV(allTestResults, testDescriptions);
+    // Wait for all test threads to complete
+    for (auto& th : testThreads) {
+        th.join();
+    }
 
     cout << "\nAll CSV files have been generated. You can now create graphs using these files." << endl;
     cout << "For individual test graphs, use test_case_X_results.csv files." << endl;
-    cout << "For a comparison across all tests, use all_test_results.csv." << endl;
-
+    // Consolidated CSV generation removed for concurrent runs.
+    // ...existing code...
     return 0;
 }
-

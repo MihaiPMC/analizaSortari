@@ -4,8 +4,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def plot_csv(csv_file):
-    # Read CSV file
-    df = pd.read_csv(csv_file)
+    # Read first line to get test title if available
+    test_title = None
+    with open(csv_file, "r") as f:
+        first_line = f.readline().strip()
+        if first_line.startswith("# Test Description:"):
+            test_title = first_line.replace("# Test Description:", "").strip()
+    # Read csv skipping commented lines
+    df = pd.read_csv(csv_file, comment='#')
     # Check if this is an individual test CSV or the consolidated CSV
     if 'Time (seconds)' in df.columns:
         algorithms = df['Algorithm']
@@ -28,8 +34,12 @@ def plot_csv(csv_file):
         axs[2].set_title("Comparisons")
         axs[2].set_xticks(x)
         axs[2].set_xticklabels(algorithms, rotation=45, ha='right')
+        
+        if test_title:
+            # Set a common title at the top of the figure
+            fig.suptitle(test_title, fontsize=16, y=0.99)
 
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
         out_filename = os.path.splitext(csv_file)[0] + ".png"
         plt.savefig(out_filename)
         plt.close()
@@ -45,7 +55,9 @@ def plot_csv(csv_file):
         ax.set_xlabel("Test Number")
         ax.set_ylabel("Time (seconds)")
         ax.legend()
-        plt.tight_layout()
+        if test_title:
+            fig.suptitle(test_title, fontsize=16, y=0.99)
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
         out_filename = os.path.splitext(csv_file)[0] + ".png"
         plt.savefig(out_filename)
         plt.close()
