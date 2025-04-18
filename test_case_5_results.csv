@@ -1,0 +1,11 @@
+Algorithm,Time (seconds),Operations,Comparisons
+Radix Sort Base 10,0.196097,181000571,45000150
+Radix Sort Base 2^16,0.05512,37786428,9196608
+Merge Sort,0.152376,105000048,51901030
+Shell Sort,0.127318,80519452,53679641
+Shell Sort (Ciura),0.103731,64571642,43047763
+Count Sort,3e-06,0,0
+Heap Sort,0.168036,104190948,54215311
+QuickSort (middle pivot),0.048929,26449503,21001142
+QuickSort (median of 3),0.049867,27039967,22772516
+QuickSort (median of 5),0.244802,38849121,26905722
